@@ -1,10 +1,90 @@
 /**
  * Created by jtl-3w-sf on 2019/5/22.
  */
+初始
 uniform vec2 u_resolution;
 uniform float u_time;
 
 void main() {
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
     gl_FragColor=vec4(st.x,st.y,1.0,0.0);
+}
+
+彩虹
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+#define PI 3.14159265359
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+vec3 colorA = vec3(0.149,0.141,0.912);
+vec3 colorB = vec3(1.000,0.833,0.224);
+
+float plot (vec2 st, float pct){
+  return  smoothstep( pct-0.01, pct, st.y) -
+          smoothstep( pct, pct+0.01, st.y);
+}
+
+void main() {
+    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+    vec3 color = vec3(0.0);
+
+    float f = sin(st.x*PI);
+    color = mix(colorA, colorB, f);
+
+    // Plot transition lines for each channel
+    color = mix(color,vec3(0.0,1.0,1.0),plot(st,f-0.02));
+    color = mix(color,vec3(0.0,0.0,1.0),plot(st,f-0.01));
+    color = mix(color,vec3(0.0,0.6,0.9),plot(st,f));
+    color = mix(color,vec3(0.0,1.0,0.0),plot(st,f+0.01));
+    color = mix(color,vec3(1.0,1.0,0.0),plot(st,f+0.02));
+    color = mix(color,vec3(1.0,0.5,1.0),plot(st,f+0.03));
+    color = mix(color,vec3(1.0,0.0,0.0),plot(st,f+0.04));
+
+    gl_FragColor = vec4(color,1.0);
+}
+
+多边形
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+#define PI 3.14159265359
+#define TWO_PI 6.28318530718
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+// Reference to
+// http://thndl.com/square-shaped-shaders.html
+
+void main(){
+  vec2 st = gl_FragCoord.xy/u_resolution.xy;
+  st.x *= u_resolution.x/u_resolution.y;
+  vec3 color = vec3(0.0);
+  float d = 0.0;
+
+  // Remap the space to -1. to 1.
+  st = st *2.-1.;
+
+  // Number of sides of your shape
+  int N = 3;
+
+  // Angle and radius from the current pixel
+  float a = atan(st.x,st.y)+PI;
+  float r = TWO_PI/float(N);
+
+  // Shaping function that modulate the distance
+  d = cos(floor(.5+a/r)*r-a)*length(st);
+
+  color = vec3(1.0-smoothstep(.4,.41,d));
+  // color = vec3(d);
+
+  gl_FragColor = vec4(color,1.0);
 }

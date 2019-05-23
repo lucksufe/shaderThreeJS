@@ -42,7 +42,7 @@ function init() {
 }
 
 function onWindowResize( event ) {
-    renderer.setSize( window.innerWidth-500, window.innerHeight * 0.98 );
+    renderer.setSize( Math.min(window.innerWidth-500, window.innerHeight * 0.98), Math.min(window.innerWidth-500, window.innerHeight * 0.98) );
     uniforms.u_resolution.value.x = renderer.domElement.width;
     uniforms.u_resolution.value.y = renderer.domElement.height;
     document.getElementById('fragmentShader').style.height = window.innerHeight * 0.98 + "px";
